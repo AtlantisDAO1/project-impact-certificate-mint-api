@@ -3,29 +3,29 @@
 
 ## Table of Contents
 
-- [Overview](#-overview)
-- [Prerequisite: Payment Requirement](#️-prerequisite-payment-requirement)
-- [API Endpoints](#-api-endpoints)
+- [Overview](#1-overview)
+- [Prerequisite: Payment Requirement](#2-prerequisite-payment-requirement)
+- [API Endpoints](#3-api-endpoints)
   - [1. Mint Impact Certificate API](#1-mint-impact-certificate-api)
-    - [Request Body](#-request-body)
-    - [Field Descriptions](#-field-descriptions)
-    - [Response](#-response)
-    - [Failure Responses](#-failure-responses)
-  - [2. Check Certificate Status API](#2-check-certificate-status-api)
-    - [Response](#-response-1)
-    - [Status Values](#-status-values)
-    - [Failure Responses](#-failure-responses-1)
-- [Reference Tables](#-reference-tables)
+    - [Request Body](#request-body)
+    - [Field Descriptions](#field-descriptions)
+    - [Success Responses](#success-responses)
+    - [Failure Responses](#failure-responses)
+  - [2. Check Certificate Status API](#2-check-impact-certificate-mint-status-api)
+    - [Success Responses](#success-responses-1)
+    - [Status Values](#possible-mint-request-statuses)
+    - [Failure Responses](#failure-responses-1)
+- [Reference Tables](#4-reference-tables)
   - [1. Supported Payment Tokens](#1-supported-payment-tokens)
-  - [2. Supported Minting Chains](#2-supported-minting-chains)
-- [Appendix](#-appendix)
-  - [Impact Cores](#-impact-cores)
-  - [Supported Bounty Types](#-supported-bounty-types)
-  - [Sustainable Development Goals (SDGs)](#-sustainable-development-goals-sdgs)
+  - [2. Supported Minting Chains](#2-supported-blockchains-for-mintingpayment)
+- [Appendix](#5-appendix)
+  - [Impact Cores](#impact-cores)
+  - [Supported Bounty Types](#supported-bounty-types)
+  - [Sustainable Development Goals (SDGs)](#sustainable-development-goals-sdgs)
 
 ---
 
-## Overview
+## 1. Overview
 
 The **Impact Certificate Minter API** is an open-source initiative that enables projects to **mint immutable proof of impact as NFTs called impact certificates**.
 
@@ -35,7 +35,7 @@ This documentation describes the available APIs for minting Impact Certificates.
 
 ---
 
-## Prerequisite: Payment Requirement
+## 2. Prerequisite: Payment Requirement
 
 Users have the option to mint impact certificates on the following blockchains: 
 | Chain Name   | Chain ID |
@@ -56,7 +56,7 @@ The blockchain used for making payment and blockchain to be used for minting can
 
 ---
 
-## API Endpoints
+## 3. API Endpoints
 
 ### 1. Mint Impact Certificate API
 
@@ -117,9 +117,9 @@ This API endpoint is used for sending request to mint an **Impact Certificate (I
 | `totalFundsDeployedUSD`          | number        | Total funds utilized for the project in USD.                              |
 | `totalImpactPointsAllocated`     | number        | Total points allocated to contributors of this project.                   |
 | `impactCoresAffected`            | array[string] | List of impact cores affected by the project. Options:`[Water, Earth, Energy, Social]`.|
-| `SDGsAffected`                   | array[string] | Sustainable development goals achieved by the project. [See full list of Sustainable Development Goals (SDGs)](#-sustainable-development-goals-sdgs).            |
-| `bountyTypeWisePassAndFailCount` | array[object] | Distribution of valid and invalid bounty submission counts by bounty type. [See full list of supported bounty types](#-supported-bounty-types)                                     |
-| `paymentTransactionBlockchain`   | string        | Blockchain used for payment. [See full list of supported blockchains](#2-supported-minting-chains)                                            |
+| `SDGsAffected`                   | array[string] | Sustainable development goals achieved by the project. [See full list of Sustainable Development Goals (SDGs)](#sustainable-development-goals-sdgs).            |
+| `bountyTypeWisePassAndFailCount` | array[object] | Distribution of valid and invalid bounty submission counts by bounty type. [See full list of supported bounty types](#supported-bounty-types)                                     |
+| `paymentTransactionBlockchain`   | string        | Blockchain used for payment. [See full list of supported blockchains](#2-supported-blockchains-for-mintingpayment)                                            |
 | `paymentTransactionHash`         | string        | Transaction hash corresponding to the mint fee payment.                                              |
 | `paymentTokenAddress`            | string        | Address of the token used for the payment.                                           |
 | `mintBlockchain`                 | string        | Blockchain on which the impact certificate is to be minted.                   |
@@ -211,14 +211,14 @@ Fetches the mint status corresponding to the passed mint request ID.
 }
 ```
 
-#### Possible mint request statuses
+#### Possible Mint Request Statuses
 
 - `REQUESTED` → Request has been received.
 - `MINTED` → Impact certificate successfully minted.
 
 ---
 
-## Reference Tables
+## 4. Reference Tables
 
 ### 1. Supported Payment Tokens
 
@@ -254,7 +254,7 @@ Fetches the mint status corresponding to the passed mint request ID.
 
 ---
 
-## Appendix
+## 5. Appendix
 
 ### Impact Cores
 
