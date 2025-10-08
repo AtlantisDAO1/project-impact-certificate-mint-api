@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [Overview](#1-overview)
+- [Overview](#1-overview--impact-certificate-minter)
 - [Prerequisite: Payment Requirement](#2-prerequisite-payment-requirement)
 - [API Endpoints](#3-api-endpoints)
   - [1. Mint Impact Certificate API](#1-mint-impact-certificate-api)
@@ -25,13 +25,133 @@
 
 ---
 
-## 1. Overview
+## 1. Overview – Impact Certificate Minter
 
-The **Impact Certificate Minter API** is an open-source initiative that enables projects to **mint immutable proof of impact as NFTs called impact certificates**.
+### **What We Have Built**
 
-Projects are broken down into **activities called bounties**. Each bounty contributes toward the overall impact of the project. Once all bounties are validated, project initiator can request the minting of an **impact certificate** that represents the impact created.
+The **Impact Certificate Minter (ICM)** is an open-source, on-chain protocol that enables projects to **mint verifiable proof-of-impact certificates** after completing measurable sustainability or social actions. The system is live and deployed across **multiple Layer-2 networks** (Base, Optimism, Arbitrum, and Celo).
 
-This documentation describes the available APIs for minting Impact Certificates.
+Each certificate is minted as a **non-fungible token (NFT)** using a structured metadata format defined in our API schema.
+
+The `/mintRequest` endpoint accepts a JSON payload containing key fields such as:
+
+- `projectId`, `certificateName`, and `description`
+- `impactCores` (e.g., Water, Energy, Social, Earth)
+- `sdg_primary` and `sdg_secondary` codes following UN SDG numbering
+- `fundsDeployed`, `bountyPassCount`, and `bountyFailCount` metrics
+- `validatorAddress` and `attestationComments` for validation data
+- `paymentToken` and `transactionHash` verifying fee completion
+
+Once a valid request is submitted, the `/mintStatus` endpoint returns real-time updates with statuses such as `REQUESTED`, `PROCESSING`, and `MINTED`.
+
+Reference tables define all supported payment tokens, chains, and SDG identifiers. Certificates are permanently stored on-chain, auditable, and interoperable with any project or DAO that requires verifiable impact tracking.
+
+---
+
+### **Why This Matters**
+
+Most impact claims today exist as PDF reports or internal dashboards that are unverifiable, inconsistent, and disconnected from public accountability.
+
+ICM introduces a **common data standard for proof of impact**, ensuring that verified outcomes (e.g., “500 trees planted under SDG 15” or “200 households provided clean water under SDG 6”) are recorded immutably on-chain and accessible through open APIs.
+
+This transforms fragmented sustainability reporting into a **transparent, programmable impact layer**. Funders, DAOs, and governments can instantly verify that actions occurred, while developers can build coordination, analytics, or incentive mechanisms that rely on validated, machine-readable outcomes.
+
+---
+
+### **Current Limitations and Acknowledged Challenges**
+
+As an early-stage open-source protocol, we recognize that **data authenticity and validation layers are still evolving**.
+
+Because any project can currently submit a mint request, **false or incomplete data could theoretically be entered**, producing certificates that lack sufficient validation. Other known limitations include:
+
+- **Validator trust** — current attestations depend on project-selected validators, not yet on decentralized reputation or staking.
+- **Proof verification** — geotagged or timestamped evidence isn’t yet cross-validated via external oracles.
+- **Data anomalies** — the system lacks AI-driven pattern recognition to detect irregular or duplicate submissions.
+- **Governance maturity** — schema and validator oversight are community-managed but not yet DAO-governed.
+
+We are **fully aware of these early-stage challenges** and are designing the next phases of ICM to directly address them through stronger AI-assisted validation, decentralized governance, and continuous community audits.
+
+---
+
+### **How It Serves the Ecosystem**
+
+ICM acts as **open infrastructure for verifiable impact**, enabling the broader regenerative ecosystem to adopt a shared proof format:
+
+- **ReFi and climate projects** can mint verified certificates for milestones achieved.
+- **DAOs and treasuries** can link funding tranches to validated on-chain proofs.
+- **Auditors and researchers** can query the open dataset for SDG-aligned progress.
+- **Developers** can use SDKs to create dashboards, analytics, and visualization tools.
+
+The schema-driven and chain-agnostic design allows adoption by both small NGOs and large institutions, bridging the data gap between grassroots projects and global ESG standards.
+
+---
+
+### **Future Roadmap (Nov 2025 – Dec 2026)**
+
+### **Phase 1 – Expansion & SDG Engine (Nov 2025 – Jan 2026)**
+
+- Extend schema to include **SDG sub-targets and impact intensity indicators**.
+- Release templates to help projects map outcomes to UN targets.
+- Onboard 20+ verified projects across water, biodiversity, waste, and education categories.
+
+### **Phase 2 – Verification, AI Integration & Developer Tools (Feb – Apr 2026)**
+
+- Deploy a **Proof-of-Workflow validation layer** combining validator attestations, geotagged media, and oracle checks.
+- Introduce **AI-assisted data verification** to flag inconsistencies, detect duplicate evidence, and assess media authenticity (e.g., timestamp mismatch, image reuse, location spoofing).
+- Train AI models on verified datasets to improve accuracy in identifying legitimate submissions.
+- Publish **JavaScript, TypeScript, and Python SDKs**, and launch a **no-code dashboard** for non-technical users.
+
+### **Phase 3 – Cross-Chain Registry, AI Reasoning & Governance (May – Aug 2026)**
+
+- Create a **public registry and explorer** to browse and verify certificates by SDG, project, or geography.
+- Integrate **Karma GAP** for automated milestone scoring and validator reputation tracking.
+- Add **AI reasoning agents** that analyze certificate metadata to suggest SDG correlations or highlight anomalies.
+- Formalize a **community governance group** to manage schema updates, validator onboarding, and appeals.
+
+### **Phase 4 – Open Data, Ecosystem Growth & AI Model Publishing (Sept – Dec 2026)**
+
+- Publish an **open dataset of 10,000+ certificates** with AI-assisted metadata validation.
+- Develop SDG dashboards with aggregated insights across impact cores and geographies.
+- Open-source trained **AI validation models** and provide APIs for third-party platforms to use them.
+- Launch developer bounties to expand validator networks, AI modules, and analytics features.
+
+---
+
+### **Expected Outcomes by March 2026**
+
+- Fully deployed across Ethereum and at least two L2 networks including Celo.
+- **100+ verified projects** issuing impact certificates.
+- AI-enabled detection of invalid or inconsistent data submissions.
+- Integration with **Karma GAP** for automated progress scoring.
+- SDKs, dashboards, and validator reputation systems publicly available.
+- Verified open dataset powering research and impact reporting.
+
+---
+
+### **Sustainability and Governance**
+
+ICM is governed as a **public good**, licensed under MIT.
+
+A transparent contributor council will oversee validator onboarding, schema versioning, and AI model transparency.
+
+Sustainability will be maintained through:
+
+- Minimal minting fees (in stablecoins) to support infrastructure.
+- DAO partnerships and ecosystem integrations.
+- Community-driven governance proposals.
+- Open publication of AI models and validation datasets to maintain accountability.
+
+Our long-term vision combines **AI intelligence** and **on-chain transparency** to build a trust fabric for regenerative systems — where every action can be verified, contextualized, and recognized.
+
+---
+
+### **In Summary**
+
+The **Impact Certificate Minter** converts real-world sustainability outcomes into structured, verifiable, and AI-auditable on-chain proofs.
+
+It is still in its early stages, but already functioning as a backbone for measurable impact, verifiable transparency, and collaborative data validation.
+
+With Ethereum for the World’s support, ICM will evolve from a functioning open protocol into a **global verification layer** where blockchain ensures immutability and AI ensures integrity - creating a unified, trusted system for proving the world’s progress toward the Sustainable Development Goals.
 
 ---
 
@@ -45,7 +165,7 @@ Users have the option to mint impact certificates on the following blockchains:
 | celo         | 42220    |
 | optimism     | 10       |
 
-Before requesting the minting of an Impact Certificate, the project initiator must make a payment of **20 USD worth** in a supported token.
+Before requesting the minting of an Impact Certificate, the project initiator must make a payment of **1 USD worth** in a supported token.
 [See the list of available tokens for payment here](#1-supported-payment-tokens)
 
 - This payment needs to be sent to address **"0x3598c4D8fA65cb920BcCa1EC1e5a294aa7e9817D"**.
@@ -222,25 +342,25 @@ Fetches the mint status corresponding to the passed mint request ID.
 
 ### 1. Supported Payment Tokens
 
-| Token   | Token Address                                | Chain    | Chain ID | Amount       |
-| --------| ---------------------------------------------| -------- | -------- | -------------|
-| USDC    | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | arbitrum | 42161    | 20           |
-| USDT    | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` | arbitrum | 42161    | 20           |
-| DAI     | `0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1` | arbitrum | 42161    | 20           |
-| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | arbitrum | 42161    | 20           |
-| USDC    | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | base     | 8453     | 20           |
-| DAI     | `0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb` | base     | 8453     | 20           |
-| USDT    | `0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2` | base     | 8453     | 20           |
-| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | base     | 8453     | 20           |
-| USDC    | `0xcebA9300f2b948710d2653dD7B07f33A8B32118C` | celo     | 42220    | 20           |
-| USDT    | `0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e` | celo     | 42220    | 20           |
-| DAI     | `0xE4fE50cdD716522A56204352f00AA110F731932d` | celo     | 42220    | 20           |
-| cUSD    | `0x765DE816845861e75A25fCA122bb6898B8B1282a` | celo     | 42220    | 20           |
-| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | celo     | 42220    | 20           |
-| USDC    | `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85` | optimism | 10       | 20           |
-| DAI     | `0xda10009cbd5d07dd0cecc66161fc93d7c9000da1` | optimism | 10       | 20           |
-| USDT    | `0x94b008aA00579c1307B0EF2c499aD98a8ce58e58` | optimism | 10       | 20           |
-| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | optimism | 10       | 20           |
+| Token   | Token Address                                | Chain    | Chain ID | Amount      |
+| --------| ---------------------------------------------| -------- | -------- | ------------|
+| USDC    | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | arbitrum | 42161    | 1           |
+| USDT    | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` | arbitrum | 42161    | 1           |
+| DAI     | `0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1` | arbitrum | 42161    | 1           |
+| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | arbitrum | 42161    | 1           |
+| USDC    | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | base     | 8453     | 1           |
+| DAI     | `0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb` | base     | 8453     | 1           |
+| USDT    | `0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2` | base     | 8453     | 1           |
+| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | base     | 8453     | 1           |
+| USDC    | `0xcebA9300f2b948710d2653dD7B07f33A8B32118C` | celo     | 42220    | 1           |
+| USDT    | `0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e` | celo     | 42220    | 1           |
+| DAI     | `0xE4fE50cdD716522A56204352f00AA110F731932d` | celo     | 42220    | 1           |
+| cUSD    | `0x765DE816845861e75A25fCA122bb6898B8B1282a` | celo     | 42220    | 1           |
+| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | celo     | 42220    | 1           |
+| USDC    | `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85` | optimism | 10       | 1           |
+| DAI     | `0xda10009cbd5d07dd0cecc66161fc93d7c9000da1` | optimism | 10       | 1           |
+| USDT    | `0x94b008aA00579c1307B0EF2c499aD98a8ce58e58` | optimism | 10       | 1           |
+| USDGLO  | `0x4F604735c1cF31399C6E711D5962b2B3E0225AD3` | optimism | 10       | 1           |
 
 
 ### 2. Supported Blockchains For Minting/Payment
