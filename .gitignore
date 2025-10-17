@@ -2,7 +2,7 @@ Impact-certificate-evm/.env
 Impact-certificate-evm/node_modules
 mint-request-receiver/.env
 mint-request-receiver/node_modules
-miner-service/.env
+minter-service/.env
 minter-service/node_modules
 project-ic-minter/.env
 project-ic-minter/node_modules
