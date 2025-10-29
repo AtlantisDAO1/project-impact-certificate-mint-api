@@ -440,11 +440,6 @@ OPTIMISM_RPC_URL=https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY
 # Deployer private key (without 0x prefix)
 PRIVATE_KEY=your_private_key_here
 
-# Etherscan API keys
-ARBISCAN_API_KEY=your_arbiscan_key
-BASESCAN_API_KEY=your_basescan_key
-CELOSCAN_API_KEY=your_celoscan_key
-OPTIMISTIC_ETHERSCAN_API_KEY=your_optimism_key
 
 ```
 
@@ -459,16 +454,16 @@ Repeat for each chain you want to deploy on.
 
 #### 1.4 Authorize Wallet for Minting
 
-The deployed smart contract has a function with the signature `function authorize(address toAuthorize) public` . This function can only be called by the address that deployed the smart contract. After deployment, you need to write and execute a script that will call this function passing in the EVM address that you would like to perform the minting. Make sure that the authorized address holds enough funds for gas fees.
+The deployed smart contract has a function with the signature `function authorize(address toAuthorize) public` . This function can only be called by the address that deployed the smart contract. After deployment, you need to write and execute a script that will call this function passing in the EVM address that you want to perform the minting. Make sure that the authorized address holds enough funds for gas fees.
 
 
 ### **Part 2: Setup MongoDB Database**
 
 #### 2.1 Create MongoDB Atlas Cluster
 
-- Create a cluster and database named **impact-certificates**
+- Create a cluster and a database inside it named **impact-certificates**
 - Collections: `mintrequests` , `blockchains`
-- Populate the `blockchains` collection with documents, where each document will correspond to a blockchain along with tokens that can be used for paying mint fee on that blockchain and the address to which the mint fee has to be paid. Example document:
+- Populate the `blockchains` collection with documents, where each document will contain the details of a blockchain, list of tokens that can be used for paying mint fee on that blockchain, and the address to which the mint fee has to be paid. Example document:
 
 ```jsx
 {
@@ -561,7 +556,6 @@ npm install
 
 #### 4.2 Configure `.env`
 
-Set contract addresses, private key, and RPC URLs for each chain.
 
 ```jsx
 DATABASE_NAME=impact_certificates
@@ -624,7 +618,7 @@ SERVER_PORT=8000
 1. **Send a test payment**
     - Choose a blockchain for minting and a blockchain + token for sending mint fee. Send the mint fee to the configured address (specified in the DB) and note the corresponding transaction hash
 2. **Test Mint Request**
-    - Make a request for minting to your API gateway configured URL
+    - Make a request for minting using API provided by express.js application
 
 ```bash
 curl -X POST https://your-api/v1/mintRequest -H "Content-Type: application/json" -d '{
