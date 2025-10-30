@@ -18,11 +18,12 @@
 - [Reference Tables](#4-reference-tables)
   - [1. Supported Payment Tokens](#1-supported-payment-tokens)
   - [2. Supported Minting Chains](#2-supported-blockchains-for-mintingpayment)
-- [Appendix](#5-appendix)
+- [How to Deploy Your Own Instance](#5-how-to-deploy-your-own-instance)
+- [Appendix](#6-appendix)
   - [Impact Cores](#impact-cores)
   - [Supported Bounty Types](#supported-bounty-types)
   - [Sustainable Development Goals (SDGs)](#sustainable-development-goals-sdgs)
-- [License](#3-license)
+- [License](#7-license)
 ---
 
 ## 1. Overview – Impact Certificate Minter
@@ -374,7 +375,300 @@ Fetches the mint status corresponding to the passed mint request ID.
 
 ---
 
-## 5. Appendix
+## 5. How to Deploy Your Own Instance
+
+### **Overview**
+
+This guide provides step-by-step instructions for **deploying your own instance** of the **Impact Certificate Minting Service**.
+
+The system comprises **four key components**:
+
+1. **impact-certificate-evm** – NFT smart contract
+2. **mint-request-receiver** – AWS Lambda function to receive mint requests
+3. **minter-service** – AWS Lambda function to execute minting
+4. **project-ic-minter** – Express.js API wrapper
+
+
+### **Prerequisites**
+
+### Required Tools
+
+- Node.js (v18+ recommended)
+- npm or yarn
+- AWS CLI configured with credentials
+- MongoDB Atlas account (or self-hosted MongoDB)
+- Ethereum wallet (private key required)
+- RPC provider access (Infura, Alchemy, QuickNode etc.)
+
+### Required Accounts
+
+- AWS Account (for Lambda deployment)
+- MongoDB Atlas Account
+- Blockchain RPC Provider Account (Infura/Alchemy/QuickNode etc.)
+- Sufficient ETH/tokens for gas fees on target chains
+
+### Supported Chains
+
+| Chain | Chain ID |
+| --- | --- |
+| Arbitrum | 42161 |
+| Base | 8453 |
+| Celo | 42220 |
+| Optimism | 10 |
+
+
+### **Part 1: Deploy Smart Contract**
+
+#### 1.1 Setup Smart Contract Project
+
+```bash
+cd impact-certificate-evm
+npm install
+```
+
+#### 1.2 Configure Environment
+
+Create a `.env` file:
+
+```bash
+# Network RPC URLs
+ARBITRUM_RPC_URL=https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY
+BASE_RPC_URL=https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
+CELO_RPC_URL=https://forno.celo.org
+OPTIMISM_RPC_URL=https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY
+
+# Deployer private key (without 0x prefix)
+PRIVATE_KEY=your_private_key_here
+
+
+```
+
+#### 1.3 Compile and Deploy
+
+```bash
+npx hardhat compile
+npx hardhat run scripts/projectImpactCertificateDeploy.js --network arbitrum
+```
+
+Repeat for each chain you want to deploy on.
+
+#### 1.4 Authorize Wallet for Minting
+
+The deployed smart contract has a function with the signature `function authorize(address toAuthorize) public` . This function can only be called by the address that deployed the smart contract. After deployment, you need to write and execute a script that will call this function passing in the EVM address that you want to perform the minting. Make sure that the authorized address holds enough funds for gas fees.
+
+
+### **Part 2: Setup MongoDB Database**
+
+#### 2.1 Create MongoDB Atlas Cluster
+
+- Create a cluster and a database inside it named **impact-certificates**
+- Collections: `mintrequests` , `blockchains`
+- Populate the `blockchains` collection with documents, where each document will contain the details of a blockchain, list of tokens that can be used for paying mint fee on that blockchain, and the address to which the mint fee has to be paid. Example document:
+
+```jsx
+{
+  "chainName": "base",
+  "chainId": 8453,
+  "mintFeeReceiverAddress": "0x3598c4D8fA65cb920BcCa1EC1e5a294aa7e9817D",
+  "paymentTokens": [
+    {
+      "tokenName": "USDC",
+      "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "mintFee": 1,
+      "decimals": 6
+    },
+    {
+      "tokenName": "DAI",
+      "tokenAddres": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+      "mintFee": 1,
+      "decimals": 18
+    },
+    {
+      "tokenName": "USDT",
+      "tokenAddress": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      "mintFee": 1,
+      "decimals": 6
+    },
+    {
+      "tokenName": "USDGLO",
+      "tokenAddress": "0x4F604735c1cF31399C6E711D5962b2B3E0225AD3",
+      "mintFee": 1,
+      "decimals": 18
+    }
+  ]
+}
+```
+
+- Get the connection string:
+
+```
+mongodb+srv://username:password@cluster.mongodb.net/impact-certificates
+```
+
+### **Part 3: Deploy Mint Request Receiver Lambda**
+
+#### 3.1 Setup Project
+
+```bash
+cd mint-request-receiver
+npm install
+```
+
+#### 3.2 Configure `.env`
+
+```bash
+DATABASE_NAME=impact-certificates
+EVM_RPC_URL=celo,https://forno.celo.org~arbitrum,https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY~optimism,https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY~base,https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/impact-certificates
+TOKEN_VALIDITY_IN_MINS=30
+```
+
+#### 3.3 Package and Deploy
+
+```bash
+npm install --production
+zip -r mint-request-receiver.zip . -x "*.git*" "*.env*"
+```
+
+Using AWS CLI:
+
+```bash
+aws lambda create-function \
+  --function-name mint-request-receiver \
+  --runtime nodejs18.x \
+  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-execution-role \
+  --handler index.handler \
+  --zip-file fileb://mint-request-receiver.zip
+```
+
+Create an API Gateway endpoint and connect it to this Lambda.
+
+Note: Can also use AWS Management Console to deploy the AWS lambda function and connect it with an API Gateway.
+
+### **Part 4: Deploy Minter Service Lambda**
+
+#### 4.1 Setup Project
+
+```bash
+cd minter-service
+npm install
+```
+
+#### 4.2 Configure `.env`
+
+
+```jsx
+DATABASE_NAME=impact_certificates
+EVM_RPC_URL=celo,https://forno.celo.org~arbitrum,https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY~optimism,https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY~base,https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
+
+#Private key of the wallet authorized to perform the minting
+MINT_FEE_PAYER=ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5ef123784d7bf4f2ff80 
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/impact-certificates
+```
+
+#### 4.3 Package & Deploy
+
+```bash
+npm install --production
+zip -r minter-service.zip . -x "*.git*" "*.env*"
+```
+
+Deploy using AWS CLI or the console.
+
+After deployment, set up a **MongoDB trigger** to automatically call this Lambda when new documents are inserted in `mintrequests` collection. MongoDB trigger function needs to make a POST request to the API gateway URL corresponding to the lambda function, passing the inserted document in the request body.
+
+
+### **Part 5: Deploy Express.js Wrapper**
+
+#### 5.1 Setup
+
+```bash
+cd project-ic-minter
+npm install
+```
+
+#### 5.2 Configure `.env`
+
+```bash
+ENVIRONMENT=production
+
+#A solana wallet is being used to pay for uploading data to arweave. You can modify the code to make use of an EVM wallet as well
+SOLANA_PROVIDER_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+SOLANA_WALLET=/path/to/file/storing/solana/private_key
+IRYS_URL=https://arweave.mainnet.irys.xyz
+MAX_UPLOAD_ATTEMPTS=3
+MAX_API_CALL_ATTEMPTS=1
+
+#public endpoint of the API gateway
+NFT_MINT_PROTOCOL_URL=https://abcd1234s.execute-api.ap-south-1.amazonaws.com/production/v1
+PROJECT_IMPACT_CERTIFICATE_CONTRACT_ADDRESS=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+PROJECT_IMPACT_CERTIFICATE_ISSUER_ADDRESS=0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
+PROJECT_IMPACT_CERTIFICATE_ISSUER=0xb4d6e2f0a3c9d8b7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3
+EVM_RPC_URL=celo,https://forno.celo.org~arbitrum,https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY~optimism,https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY~base,https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
+ATLANTIS_WEBSITE_URL=https://www.atlantisp2p.com
+SERVER_PORT=8000
+```
+
+#### 5.3 Run Locally or Deploy
+
+- Either run the express.js application locally or deploy it on the cloud (AWS). Make sure you have the endpoint URL corresponding to the application,
+
+### **Part 6: Testing Your Deployment**
+
+1. **Send a test payment**
+    - Choose a blockchain for minting and a blockchain + token for sending mint fee. Send the mint fee to the configured address (specified in the DB) and note the corresponding transaction hash
+2. **Test Mint Request**
+    - Make a request for minting using API provided by express.js application
+
+```bash
+curl -X POST https://your-api/v1/mintRequest -H "Content-Type: application/json" -d '{
+  "projectName": "Sample Project",
+  "projectStartDate": "2025-09-18T13:40:40",
+  "projectEndDate": "2025-09-25T13:40:40",
+  "backerName": "Sample Organisation",
+  "backerLogo": "https://orgwebsite.org/sample_image.png",
+  "projectDescription": "This project was carried out in Bengaluru to promote rainwater harvesting. Over 20000 households setup rainwater harvesting which can    potentially lead to 4000000 litres of water being harvested",
+  "totalFundsDeployedUSD": 50000,
+  "totalImpactPointsAllocated": 2000000,
+  "impactCoresAffected": ["Water", "Earth", "Energy", "Social"],
+  "SDGsAffected": ["Zero hunger", "No poverty"],
+  "bountyTypeWisePassAndFailCount": [
+    {
+      "type": "Design",
+      "passCount": 20,
+      "failCount": 5
+    },
+    {
+      "type": "Code",
+      "passCount": 23,
+      "failCount": 2
+    }
+  ],
+  "paymentTransactionBlockchain": "arbitrum",
+  "paymentTransactionHash": "0x9f3a1c7b4e2d90f5b8c3a6e12d7f4b0c5a9e8f1d2c3b4a5e6f7091a2b3c4d5e",
+  "paymentTokenAddress": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+  "mintBlockchain": "arbitrum",
+  "receiverAddress": "0x7c4e9a3f82b5d1a6c2f08b34e9d7ab1938f5e247"
+}'
+```
+
+1. **Check Mint Status**
+
+```bash
+curl https://your-api/v1/mintStatus?requestId=YOUR_REQUEST_ID
+```
+
+
+### **Support & Resources**
+
+- **GitHub:** https://github.com/AtlantisDAO1/project-impact-certificate-mint-api
+- **MongoDB Docs:** https://docs.atlas.mongodb.com/
+- **AWS Lambda Docs:** https://docs.aws.amazon.com/lambda/
+- **Hardhat Docs:** https://hardhat.org/docs
+
+---
+
+## 6. Appendix
 
 ### Impact Cores
 
@@ -432,7 +726,7 @@ Fetches the mint status corresponding to the passed mint request ID.
 
 ---
 
-## 3. License
+## 7. License
 
 MIT License
 
