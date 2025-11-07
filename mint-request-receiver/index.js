@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-const { fetchBlockchains, generateMintToken, addMintRequest, fetchMintRequestStatus } = require("./controllers");
+const { fetchBlockchains, generateMintToken, addMintRequest, fetchMintRequestStatus, fetchOutstandingRequestCount } = require("./controllers");
 const createResponse = require("./utils/createResponse");
 
 const cachedClient = new MongoClient(process.env.MONGODB_URI);
@@ -16,6 +16,8 @@ exports.handler = async (event) => {
             response = await addMintRequest(cachedClient, event);
         } else if (path === "/v1/mintstatus") {
             response = await fetchMintRequestStatus(cachedClient, event);
+        } else if (path === "/v1/outstandingrequestcount") {
+            response = await fetchOutstandingRequestCount(cachedClient, event);
         } else {
             response = createResponse(404, { message: "Specified path not found" });
         }

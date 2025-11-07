@@ -251,7 +251,10 @@ This API endpoint is used for sending request to mint an **Impact Certificate (I
 ```json
 200
 {
-  "requestId": "kR5vhGpUU6PTEy5033ffadYfZY7ka6Rq"
+  "requestId": "kR5vhGpUU6PTEy5033ffadYfZY7ka6Rq",
+  "tokenId": 7,
+  "imageUri": "https://gateway.irys.xyz/Db7uJ1MH0NQdYYI3U7ti14Bh9owPVKesS-qxfWlabcd",
+  "metadataUri": "https://gateway.irys.xyz/W8-xVTnO3xcsl_Cn1am2a_pKjlYN_8Qyv_Vxp5nabcd"
 }
 ```
 

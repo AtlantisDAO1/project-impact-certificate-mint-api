@@ -48,10 +48,16 @@ const addMintToken = async (client, chainName, erc721Address, ownerAddress, mint
     });
 };
 
+const fetchOutstandingRequestCount = async (client, chainName, erc721Address) => {
+    const requests = await getCollection(client, "mintrequests").find({ chainName, erc721Address, status: "REQUESTED" }).toArray();
+    return requests.length;
+};
+
 module.exports = {
     fetchBlockchains,
     fetchMintRequest,
     findMintTokenRecord,
     addMintRequest,
-    addMintToken
+    addMintToken,
+    fetchOutstandingRequestCount
 };
