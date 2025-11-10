@@ -102,9 +102,20 @@ const fetchMintRequestStatus = async (client, event) => {
     return createResponse(200, response);
 };
 
+const fetchOutstandingRequestCount = async (client, event) => {
+    const {
+        chainName,
+        erc721Address
+    } = JSON.parse(event.body);
+    const requestCount = await DB.fetchOutstandingRequestCount(client, chainName, erc721Address);
+    const response = { requestCount };
+    return createResponse(200, response);
+};
+
 module.exports = {
     fetchBlockchains,
     generateMintToken,
     addMintRequest,
-    fetchMintRequestStatus
+    fetchMintRequestStatus,
+    fetchOutstandingRequestCount
 };

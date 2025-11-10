@@ -44,8 +44,24 @@ const validBountyTypes = [
     'Recycle',
     'Funding'
 ];
-const supportedBlockchains = [ 'optimism sepolia' ];
+const supportedBlockchains = [ 'arbitrum', 'base', 'celo', 'optimism', 'optimism sepolia' ];
 const blockchainDetails = {
+    'arbitrum': {
+        image: 'assets/arbitrum.png',
+        chainId: 42161
+    },
+    'base': {
+        image: 'assets/base.png',
+        chainId: 8453
+    },
+    'celo': {
+        image: 'assets/celo.png',
+        chainId: 42220
+    },
+    'optimism': {
+        image: 'assets/optimism.png',
+        chainId: 10
+    },
     'optimism sepolia': {
         image: 'assets/optimism.png',
         chainId: 11155420
@@ -53,35 +69,6 @@ const blockchainDetails = {
 };
 const evmAddressRegex = new RegExp('^0x[a-fA-F0-9]{40}$');
 
-/*
-    "projectName": "Sample Project",
-	"projectStartDate": "2025-09-18T13:40:40",
-    "projectEndDate": "2025-09-25T13:40:40",
-    "backerName": "Sample Organisation",
-    "backerLogo": "https://orgwebsite.org/sample_image.png",
-    "projectDescription": "This project was carried out in Bengaluru to promote rainwater harvesting. Over 20000 households setup rainwater harvesting which can potentially lead to 4000000 litres of water being harvested",
-    "totalFundsDeployedUSD": 50000,
-    "totalImpactPointsAllocated": 2000000,
-    "impactCoresAffected": [ "Water", "Earth", "Energy", "Social"],
-    "SDGsAffected": [ "zero hunger", "no poverty" ],
-    "bountyTypeWisePassAndFailCount": [
-        {
-            "type": "Design",
-            "passCount": 20,
-            "failCount": 5
-        },
-        {
-            "type": "Code",
-            "passCount": 23,
-            "failCount": 2
-        }
-    ],
-    "paymentTransactionBlockchain": "arbitrum",
-    "paymentTransactionHash": "0xsomerandomtransactionhash",
-    "paymentTokenAddress": "0xSomerandomaddress",
-    "mintBlockchain": "optimism sepolia",
-    "receiverAddress": "0xsomerandomaddress"
-*/
 const requestMinting = {
     body: Joi.object().keys({
         projectName: Joi.string().required(),

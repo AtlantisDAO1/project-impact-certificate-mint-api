@@ -1,94 +1,89 @@
-
-// Dimensions of different elements
-
 const { loadImage, createCanvas } = require('canvas');
 
-const [WIDTH, HEIGHT] = [ 1611, 1027 ];//[ 2054, 1027 ] //checked
-const SIDE_MARGIN = 57; //checked
+// Dimensions of different elements
+const [WIDTH, HEIGHT] = [ 1611, 1027 ];
+const SIDE_MARGIN = 57;
 const [
-        TOP_MARGIN1, //checked 
-        TOP_MARGIN2, //checked
-        TOP_MARGIN3, //checked
-        TOP_MARGIN4, //checked
-        TOP_MARGIN5, //checked
-        TOP_MARGIN6, //checked
-        TOP_MARGIN7, //checked
-        TOP_MARGIN8, //checked 
-        TOP_MARGIN9, //checked
-        TOP_MARGIN10, //checked
-        TOP_MARGIN11, //checked
+        TOP_MARGIN1,
+        TOP_MARGIN2,
+        TOP_MARGIN3,
+        TOP_MARGIN4,
+        TOP_MARGIN5,
+        TOP_MARGIN6,
+        TOP_MARGIN7,
+        TOP_MARGIN8,
+        TOP_MARGIN9,
+        TOP_MARGIN10,
+        TOP_MARGIN11,
         TOP_MARGIN12
     ] = [ 91, 174, 223, 289, 323, 357, 419, 460, 550, 620, 922, 965  ];
-        // [ 101, 177, 248, 310, 338, 444, 475, 589.5, 645, 942, 965 ];
-const PROJECT_BRIEF_VERTICAL_SPACING = 34; //checked
+const PROJECT_BRIEF_VERTICAL_SPACING = 34;
 const IMPACT_LENS_AND_LINE_SPACING = 10;
-const IMPACT_CORE_TOP_MARGIN = 52; //checked
-const IMPACT_CORE_HORIZONTAL_SPACING = 15; //checked
+const IMPACT_CORE_TOP_MARGIN = 52;
+const IMPACT_CORE_HORIZONTAL_SPACING = 15;
 const SDG_BIG_BOX_HEIGHT = 212;
 const SDG_BIG_BOX_WIDTH = 194;
 const SDG_SMALL_BOX_HEIGHT = 101;
 const SDG_SMALL_BOX_WIDTH = 92;
 const SDG_BOX_SPACING = SDG_BIG_BOX_HEIGHT - 2 * SDG_SMALL_BOX_HEIGHT;
 const SDG_TOP_MARGIN = 628;
-const [VERIFIED_IMAGE_WIDTH, VERIFIED_IMAGE_HEIGHT] = [158.78, 125.7];//[ 137, 126 ]; //checked
-const [VERIFIED_IMAGE_LEFT_MARGIN, VERIFIED_IMAGE_TOP_MARGIN] = [ 1395.22, 849.3]//[ 1417, 849 ]; //checked
-const [BACKER_IMAGE_WIDTH, BACKER_IMAGE_HEIGHT] = [ 61, 61 ]; //checked
-const [BACKER_IMAGE_LEFT_MARGIN, BACKER_IMAGE_TOP_MARGIN] = [ 57, 278.5 ]; //checked
-const [IMPACT_POINTS_ICON_IMAGE_WIDTH, IMPACT_POINTS_ICON_IMAGE_HEIGHT] = [ 29, 26 ]; //checked
-const [IMPACT_POINTS_ICON_IMAGE_LEFT_MARGIN, IMPACT_POINTS_ICON_IMAGE_TOP_MARGIN] = [ 1182, TOP_MARGIN5-25 ]; //checked
+const [BACKER_IMAGE_WIDTH, BACKER_IMAGE_HEIGHT] = [ 61, 61 ];
+const [BACKER_IMAGE_LEFT_MARGIN, BACKER_IMAGE_TOP_MARGIN] = [ 57, 278.5 ];
+const [IMPACT_POINTS_ICON_IMAGE_WIDTH, IMPACT_POINTS_ICON_IMAGE_HEIGHT] = [ 29, 26 ];
+const [IMPACT_POINTS_ICON_IMAGE_LEFT_MARGIN, IMPACT_POINTS_ICON_IMAGE_TOP_MARGIN] = [ 1182, TOP_MARGIN5-25 ];
 const [BOUNTY_TYPE_LEGEND_WIDTH, BOUNTY_TYPE_LEGEND_HEIGHT] = [ 20, 20 ];
 const BOUNTY_TYPE_LEGEND_TOP_MARGIN = TOP_MARGIN10 - 20;
 const BOUNTY_TYPE_LEGEND_TEXT_TOP_MARGIN = TOP_MARGIN10 - 5;
-const BOUNTY_TYPE_LEGEND_LEFT_MARGIN1 = 910;
-const BOUNTY_TYPE_LEGEND_LEFT_MARGIN2 = 974 + 50;
-const BOUNTY_TYPE_LEGEND_TEXT_LEFT_MARGIN1 = 938;
-const BOUNTY_TYPE_LEGEND_TEXT_LEFT_MARGIN2 = 1000 + 50;
+const BOUNTY_TYPE_LEGEND_LEFT_MARGIN1 = 1027;
+const BOUNTY_TYPE_LEGEND_LEFT_MARGIN2 = 1091 + 50;
+const BOUNTY_TYPE_LEGEND_TEXT_LEFT_MARGIN1 = 1055;
+const BOUNTY_TYPE_LEGEND_TEXT_LEFT_MARGIN2 = 1117 + 50;
 
 const BOUNTY_TYPE_BAR_HEIGHT = 32;
 const BOUNTY_TYPE_BAR_MAX_WIDTH = 401;
-const BOUNTY_TYPE_NUMBER_LEFT_MARGIN = 771;//810; //checked
-const BOUNTY_TYPE_BAR_LEFT_MARGIN = 895;//880; //checked
+const BOUNTY_TYPE_NUMBER_LEFT_MARGIN = 771;
+const BOUNTY_TYPE_BAR_LEFT_MARGIN = 1025;
 const BOUNTY_TYPE_TEXT_TOP_MARGIN = 667;
 const BOUNTY_TYPE_NUMBER_TOP_MARGIN = 665;
 const BOUNTY_TYPE_TEXT_SPACING = 41;
 const BOUNTY_TYPE_NUMBER_SPACING = 41.5;
 const PARTITION_LINE_START_COORDINATES = [830, 665-15];
-const BACKED_BY_LEFT_MARGIN = 134; //checked
-const FUNDS_DEPLOYED_LEFT_MARGIN = 940; //checked
-const IMPACT_POINTS_GAINED_LEFT_MARGIN = 1182; //checked
+const BACKED_BY_LEFT_MARGIN = 134;
+const FUNDS_DEPLOYED_LEFT_MARGIN = 940;
+const IMPACT_POINTS_GAINED_LEFT_MARGIN = 1182;
 const IMPACT_POINTS_AMOUNT_LEFT_MARGIN = 1218;
-const BOUNTY_TYPES_LEFT_MARGIN = 565; //checked
+const BOUNTY_TYPES_LEFT_MARGIN = 565;
 const TOKEN_ID_LEFT_MARGIN = 310;
-const ISSUED_BY_LEFT_MARGIN = 565;  //checked
-const MINTED_ON_LEFT_MARGIN = 900 + 80 - 70;//840;
-const IMPACT_FOUNDRY_LEFT_MARGIN = 565 + 50;//680;
-const CHAIN_NAME_LEFT_MARGIN = 950 + 80 - 70;//900;
+const ISSUED_BY_LEFT_MARGIN = 565;
+const MINTED_ON_LEFT_MARGIN = 900 + 80 - 70;
+const IMPACT_FOUNDRY_LEFT_MARGIN = 565 + 50;
+const CHAIN_NAME_LEFT_MARGIN = 950 + 80 - 70;
 const IMPACT_FOUNDRY_LOGO_TOP_MARGIN = 935;
 const CHAIN_LOGO_TOP_MARGIN = 935;
 const [ IMPACT_FOUNDRY_LOGO_WIDTH, IMPACT_FOUNDRY_LOGO_HEIGHT ] = [ 39, 39 ];
 const [ CHAIN_LOGO_WIDTH, CHAIN_LOGO_HEIGHT ] = [ 37, 37 ];
-const BACKER_NAME_MAX_WIDTH = 761; //checked
-const PROJECT_BRIEF_WIDTH = 1497; //checked
+const BACKER_NAME_MAX_WIDTH = 761;
+const PROJECT_BRIEF_WIDTH = 1497;
 
-const TEXT_STYLE_MAIN_HEADING = 'bold 40.36px Inter'; //checked
-const TEXT_STYLE_HEADING = 'bold 20px Inter'; //checked
+const TEXT_STYLE_MAIN_HEADING = 'bold 40.36px Inter';
+const TEXT_STYLE_HEADING = 'bold 20px Inter';
 const TEXT_STYLE_HEADING1 = 'bold 24px Inter';
-const TEXT_STYLE_CONTENT1 = 'bold 37.6px Inter'; //checked
+const TEXT_STYLE_CONTENT1 = 'bold 37.6px Inter';
 const TEXT_STYLE_CONTENT2 = 'italic 28px Inter';
-const TEXT_STYLE_CONTENT3 = '28px Inter'; //checked
-const TEXT_STYLE_CONTENT4 = '20px Inter'; //checked
-const TEXT_STYLE_CONTENT5 = '32px Inter'; // checked
-const TEXT_STYLE_CONTENT6 = '26px Inter'; //checked
-const TEXT_STYLE_IMPACT_LENS = 'bold 16px Inter'; //checked
-const TEXT_STYLE_BOUNTY_TYPE_LEGEND = '20px Inter'; //checked
-const MAIN_HEADING_COLOUR = '#FBCF4E'; //checked
-const HEADING_COLOUR = '#A8A8A8'; //checked
-const CONTENT_COLOUR = '#FFFFFF'; //checked
+const TEXT_STYLE_CONTENT3 = '28px Inter';
+const TEXT_STYLE_CONTENT4 = '20px Inter';
+const TEXT_STYLE_CONTENT5 = '32px Inter';
+const TEXT_STYLE_CONTENT6 = '26px Inter';
+const TEXT_STYLE_CONTENT7 = 'bold 26px Inter';
+const TEXT_STYLE_IMPACT_LENS = 'bold 16px Inter';
+const TEXT_STYLE_BOUNTY_TYPE_LEGEND = '20px Inter';
+const MAIN_HEADING_COLOUR = '#FBCF4E';
+const HEADING_COLOUR = '#A8A8A8';
+const CONTENT_COLOUR = '#FFFFFF';
 const PARTITION_LINE_WIDTH = 1;
 const PARTITION_LINE_TOP_MARGIN = 542.5;
 
 const BACKGROUND_IMAGE = 'assets/projectImpactCertificateBg.png';
-const VERIFIED_IMAGE = 'assets/verifiedBadge.png';
 const IMPACT_POINTS_ICON_IMAGE = 'assets/impactPointsIcon.png';
 const BOUNTY_TYPE_LEGEND_IMAGE_GREEN = 'assets/circleGreen.png';
 const BOUNTY_TYPE_LEGEND_IMAGE_BROWN = 'assets/circleBrown.png';
@@ -96,6 +91,7 @@ const BOUNTY_TYPE_BAR_IMAGE_GREEN = 'assets/rectangleGreen.png';
 const BOUNTY_TYPE_BAR_IMAGE_BROWN = 'assets/rectangleBrown.png';
 const IMPACT_FOUNDRY_LOGO_IMAGE = 'assets/foundryLogo.png';
 const WATER_MARK_IMAGE = 'assets/projectImpactCertificateWatermark.png';
+const ATLANTIS_WATER_MARK_IMAGE = 'assets/atlantisWatermark.png';
 
 
 const cores = [
@@ -243,6 +239,23 @@ const generateProjectCertificateImage = async (
     context.drawImage(bgImage, 0, 0);
     if (preview) {
         context.drawImage(await loadImage(WATER_MARK_IMAGE), 0, 0);
+    } else {
+        const watermarkImage = await loadImage(ATLANTIS_WATER_MARK_IMAGE);
+        const imgAspect = watermarkImage.width / watermarkImage.height;
+        const canvasAspect = WIDTH / HEIGHT;
+        let drawWidth, drawHeight;
+        if (imgAspect > canvasAspect) {
+            // Image is wider than canvas - fit to width
+            drawWidth = WIDTH;
+            drawHeight = WIDTH / imgAspect;
+        } else {
+            // Image is taller than canvas - fit to height
+            drawHeight = HEIGHT;
+            drawWidth = HEIGHT * imgAspect;
+        }
+        const x = (WIDTH - drawWidth) / 2;
+        const y = (HEIGHT - drawHeight) / 2;
+        context.drawImage(watermarkImage, x, y, drawWidth, drawHeight);
     }
 
     context.font = TEXT_STYLE_MAIN_HEADING;
@@ -269,10 +282,10 @@ const generateProjectCertificateImage = async (
         context.fillText(backerNameString[1], BACKED_BY_LEFT_MARGIN, TOP_MARGIN6);
     }
     // context.fillText(backer.name, BACKED_BY_LEFT_MARGIN, TOP_MARGIN5);
-    context.fillText(`$${numberWithCommas(fundsDeployedUSD)}`, FUNDS_DEPLOYED_LEFT_MARGIN, TOP_MARGIN5);
+    context.fillText(`$${numberWithCommas(Number(fundsDeployedUSD.toFixed(2)))}`, FUNDS_DEPLOYED_LEFT_MARGIN, TOP_MARGIN5);
     image = await loadImage(IMPACT_POINTS_ICON_IMAGE);
     context.drawImage(image, IMPACT_POINTS_ICON_IMAGE_LEFT_MARGIN, IMPACT_POINTS_ICON_IMAGE_TOP_MARGIN, IMPACT_POINTS_ICON_IMAGE_WIDTH, IMPACT_POINTS_ICON_IMAGE_HEIGHT);
-    context.fillText(`${numberWithCommas(impactPointsIssued)} IP`, IMPACT_POINTS_AMOUNT_LEFT_MARGIN, TOP_MARGIN5);
+    context.fillText(`${numberWithCommas(Number(impactPointsIssued.toFixed(2)))} IP`, IMPACT_POINTS_AMOUNT_LEFT_MARGIN, TOP_MARGIN5);
 
     context.font = TEXT_STYLE_HEADING;
     context.fillStyle = HEADING_COLOUR;
@@ -358,7 +371,8 @@ const generateProjectCertificateImage = async (
         context.drawImage(image, SIDE_MARGIN+SDG_BIG_BOX_WIDTH+SDG_BOX_SPACING+SDG_SMALL_BOX_WIDTH+SDG_BOX_SPACING, SDG_TOP_MARGIN+SDG_SMALL_BOX_HEIGHT+SDG_BOX_SPACING, SDG_SMALL_BOX_WIDTH, SDG_SMALL_BOX_HEIGHT);
     }
 
-    context.fillText('BOUNTY TYPES', BOUNTY_TYPES_LEFT_MARGIN, TOP_MARGIN10);
+    context.fillText('ACTIVITY TYPES', BOUNTY_TYPES_LEFT_MARGIN, TOP_MARGIN10);
+    context.fillText('SUBMISSIONS', BOUNTY_TYPE_NUMBER_LEFT_MARGIN, TOP_MARGIN10);
     image = await loadImage(BOUNTY_TYPE_LEGEND_IMAGE_GREEN);
     context.drawImage(image, BOUNTY_TYPE_LEGEND_LEFT_MARGIN1, BOUNTY_TYPE_LEGEND_TOP_MARGIN, BOUNTY_TYPE_LEGEND_WIDTH, BOUNTY_TYPE_LEGEND_HEIGHT);
     image = await loadImage(BOUNTY_TYPE_LEGEND_IMAGE_BROWN);
@@ -371,7 +385,7 @@ const generateProjectCertificateImage = async (
     context.font = TEXT_STYLE_CONTENT2;
     context.fillStyle = CONTENT_COLOUR;
     if (uniqueBountyAcceptanceCounts.length > 0) {
-        const acceptanceCountForMaxBarWidth = uniqueBountyAcceptanceCounts[0].passCount + uniqueBountyAcceptanceCounts[0].failCount;
+        const acceptanceCountForMaxBarWidth = uniqueBountyAcceptanceCounts[uniqueBountyAcceptanceCounts.length-1].passCount + uniqueBountyAcceptanceCounts[uniqueBountyAcceptanceCounts.length-1].failCount;
         for (let i=0; i<uniqueBountyAcceptanceCounts.length; ++i) {
             // type, passCount, failCount
             /*
@@ -387,29 +401,29 @@ const generateProjectCertificateImage = async (
             const { type, passCount, failCount } = uniqueBountyAcceptanceCounts[i];
             const passBarWidth = (passCount/acceptanceCountForMaxBarWidth)*BOUNTY_TYPE_BAR_MAX_WIDTH;
             const failBarWidth = (failCount/acceptanceCountForMaxBarWidth)*BOUNTY_TYPE_BAR_MAX_WIDTH;
-            context.font = TEXT_STYLE_CONTENT6;
+            context.fillStyle = i===uniqueBountyAcceptanceCounts.length-1?MAIN_HEADING_COLOUR:CONTENT_COLOUR;
+            context.font = i===uniqueBountyAcceptanceCounts.length-1?TEXT_STYLE_CONTENT7:TEXT_STYLE_CONTENT6;
             context.fillText(type, BOUNTY_TYPES_LEFT_MARGIN, BOUNTY_TYPE_TEXT_TOP_MARGIN + i * (BOUNTY_TYPE_TEXT_SPACING));
-            context.font = TEXT_STYLE_CONTENT4;
+            context.font = i===uniqueBountyAcceptanceCounts.length-1?TEXT_STYLE_HEADING:TEXT_STYLE_CONTENT4;
             context.fillText(numberWithCommas(passCount+failCount), BOUNTY_TYPE_NUMBER_LEFT_MARGIN, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING));
             if (passCount > 0) {
                 textMetrics = context.measureText(numberWithCommas(passCount));
-                context.fillText(numberWithCommas(passCount), BOUNTY_TYPE_BAR_LEFT_MARGIN-5-textMetrics.width/*PASS_COUNT_LEFT_MARGIN*/, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING));
+                context.fillText(numberWithCommas(passCount), BOUNTY_TYPE_BAR_LEFT_MARGIN-5-textMetrics.width, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING));
             }
             image = await loadImage(BOUNTY_TYPE_BAR_IMAGE_GREEN);
-            context.drawImage(image, BOUNTY_TYPE_BAR_LEFT_MARGIN, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING) -23/*BOUNTY_TYPE_BAR_TOP_MARGIN + i * (BOUNTY_TYPE_BAR_SPACING)*/, passBarWidth, BOUNTY_TYPE_BAR_HEIGHT);
+            context.drawImage(image, BOUNTY_TYPE_BAR_LEFT_MARGIN, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING) -23, passBarWidth, BOUNTY_TYPE_BAR_HEIGHT);
             image = await loadImage(BOUNTY_TYPE_BAR_IMAGE_BROWN);
             context.drawImage(image, BOUNTY_TYPE_BAR_LEFT_MARGIN+passBarWidth, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING) -23, failBarWidth, BOUNTY_TYPE_BAR_HEIGHT);
             if (failCount > 0) {
                 context.fillText(numberWithCommas(failCount), BOUNTY_TYPE_BAR_LEFT_MARGIN+passBarWidth+failBarWidth+5, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING));
             }
-            //context.fillText(numberWithCommas(passCount), BOUNTY_TYPE_BAR_INSIDE_NUMBER_LEFT_MARGIN, BOUNTY_TYPE_NUMBER_TOP_MARGIN + i * (BOUNTY_TYPE_NUMBER_SPACING));
         }
         const separatorLineEnding = BOUNTY_TYPE_NUMBER_TOP_MARGIN + (uniqueBountyAcceptanceCounts.length-1) * (BOUNTY_TYPE_NUMBER_SPACING) + 3;
         context.strokeStyle = HEADING_COLOUR;
         context.lineWidth = PARTITION_LINE_WIDTH;
         context.beginPath();
-        context.moveTo(PARTITION_LINE_START_COORDINATES[0], PARTITION_LINE_START_COORDINATES[1]);
-        context.lineTo(PARTITION_LINE_START_COORDINATES[0], separatorLineEnding);
+        context.moveTo(PARTITION_LINE_START_COORDINATES[0]+70, PARTITION_LINE_START_COORDINATES[1]);
+        context.lineTo(PARTITION_LINE_START_COORDINATES[0]+70, separatorLineEnding);
         context.stroke();
     }
     
@@ -429,10 +443,8 @@ const generateProjectCertificateImage = async (
     context.fillText('Impact Foundry', IMPACT_FOUNDRY_LEFT_MARGIN, TOP_MARGIN12);
     image = await loadImage(mintBlockchain.image);
     context.drawImage(image, MINTED_ON_LEFT_MARGIN, CHAIN_LOGO_TOP_MARGIN, CHAIN_LOGO_WIDTH, CHAIN_LOGO_HEIGHT);
-    context.fillText(mintBlockchain.name, CHAIN_NAME_LEFT_MARGIN, TOP_MARGIN12, /*CHAIN_LOGO_WIDTH, CHAIN_LOGO_HEIGHT*/);
+    context.fillText(mintBlockchain.name, CHAIN_NAME_LEFT_MARGIN, TOP_MARGIN12);
 
-    image = await loadImage(VERIFIED_IMAGE);
-    context.drawImage(image, VERIFIED_IMAGE_LEFT_MARGIN, VERIFIED_IMAGE_TOP_MARGIN, VERIFIED_IMAGE_WIDTH, VERIFIED_IMAGE_HEIGHT);
 
     const buffer = imageCanvas.toBuffer();
     await require('fs').promises.writeFile(fileLocation, buffer);
@@ -442,57 +454,4 @@ const generateProjectCertificateImage = async (
     }
 };
 
-const testImageGeneration = async () => {
-    const projectTitle = 'Resilient Water Network';
-    const projectStartDate = '12 May, 2025';
-    const projectEndDate = '09 Aug, 2025';
-    const backer = {
-        name: 'Lorem ipsum dolor sit amet consectetur. Senectus id venenatis ultricies ut maecenas sagittis euismod.',
-        image: 'https://atlantis-staging-bucket.s3.ap-south-1.amazonaws.com/images/1749108909488-yellowMetaIcon.png'
-    };
-    const fundsDeployedUSD = 1000000;
-    const impactPointsIssued = 1000000;
-    const projectBrief = 'Lorem ipsum dolor sit amet consectetur. Ipsum aliquam fusce nisl tempor turpis gravida consequat eget in. Cursus ut odio vulputate dictumst nullam turpis auctor sit turpis ut diam condimentum maecenas.';
-    const coreStatuses = [true, true, true, true];
-    const projectSdgs = [1, 2, 3, 4, 5];
-    const uniqueBountyAcceptanceCounts = [
-        {
-            type: 'Total',
-            passCount: 100,
-            failCount: 20
-        },
-        {
-            type: 'GHG Removal',
-            passCount: 90,
-            failCount: 20
-        },
-        {
-            type: 'Sampling',
-            passCount: 10,
-            failCount: 2
-        },
-        {
-            type: 'Data Science',
-            passCount: 80,
-            failCount: 30
-        },
-        {
-            type: 'Others',
-            passCount: 40,
-            failCount: 30
-        },
-    ];
-    const mintingDate = '12 May, 2025';
-    const mintBlockchain = {
-        name: 'Optimism',
-        image: 'https://atlantis-staging-bucket.s3.ap-south-1.amazonaws.com/auxiliary/images/image1740054968965.png'
-    };
-    const tokenId = '1234567890';
-    const fileLocation = '/Users/altar/Desktop/test.png';
-    console.log('projectSdgs', projectSdgs);
-    await generateProjectCertificateImage(projectTitle, projectStartDate, projectEndDate, backer, fundsDeployedUSD, impactPointsIssued, projectBrief, coreStatuses, projectSdgs, uniqueBountyAcceptanceCounts, mintingDate, mintBlockchain, tokenId, fileLocation);
-
-};
-
-//module.exports = testImageGeneration;
 module.exports = generateProjectCertificateImage;

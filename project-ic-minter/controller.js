@@ -6,7 +6,8 @@ const { ethers } = require('ethers');
 const generateProjectCertificateImage = require('./utils/imageGenerator');
 const { validImpactCores, validSdgs, blockchainDetails } = require('./validation');
 const { uploadFileToArweave, uploadJsonToArweave } = require('./utils/arweaveUploader');
-const { fetchMintToken, createMintRequest, fetchRequestStatus } = require('./utils/nftMintingAPIs');
+const { fetchMintToken, createMintRequest, fetchRequestStatus, fetchOutstandingRequestCount } = require('./utils/nftMintingAPIs');
+const ApiError = require('./utils/ApiError');
 
 const catchAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch((err) => {
@@ -44,7 +45,35 @@ const deleteDirectoryRecursive = (directoryPath) => {
     } else {
       console.error(`Directory ${directoryPath} does not exist.`);
     }
-}
+};
+
+const fetchNextTokenId = async (mintBlockchain) => {
+    // if the calculated token ID is consistent from 3 sequential calculations, return it
+    let consistentValueCount = 0;
+    const provider = new ethers.JsonRpcProvider(getRpcUrl(blockchainDetails[mintBlockchain].chainId));
+    const abi = [ "function totalSupply() public view returns (uint256)" ];
+    const contract = new ethers.Contract(process.env.PROJECT_IMPACT_CERTIFICATE_CONTRACT_ADDRESS, abi, provider);
+    let totalSupply;
+    let outstandingRequests;
+    let tokenId = null;
+    const MAX_CALCULATION_ATTEMPTS = 10;
+    for (let i=0; i<MAX_CALCULATION_ATTEMPTS; ++i) {
+        totalSupply = Number(await contract.totalSupply());
+        outstandingRequests = await fetchOutstandingRequestCount(mintBlockchain, process.env.PROJECT_IMPACT_CERTIFICATE_CONTRACT_ADDRESS);
+        if (tokenId === totalSupply + outstandingRequests) {
+            consistentValueCount += 1;
+        } else {
+            tokenId = totalSupply + outstandingRequests;
+            consistentValueCount = 0;
+        }
+        if (consistentValueCount === 3) {
+            return tokenId;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    // could not achieve consistent token ID for 3 sequential calculations
+    return null;
+};
 
 const requestMinting = catchAsync(async (req, res) => {
     const {
@@ -107,10 +136,11 @@ const requestMinting = catchAsync(async (req, res) => {
         image: blockchainDetails[mintBlockchain].image
     };
 
-    const provider = new ethers.JsonRpcProvider(getRpcUrl(blockchainDetails[mintBlockchain].chainId));
-    const abi = [ "function totalSupply() public view returns (uint256)" ];
-    const contract = new ethers.Contract(process.env.PROJECT_IMPACT_CERTIFICATE_CONTRACT_ADDRESS, abi, provider);
-    const totalSupply = Number(await contract.totalSupply());
+    const tokenId = await fetchNextTokenId(mintBlockchain);
+    if (tokenId === null) {
+        throw new ApiError(500, 'Could not calculate the token ID to be allocated to impact certificate')
+    }
+
     const imageFileLocation = tempFolderPath + '/certificateImage.png';
 
     const totalEntry = bountyTypeWisePassAndFailCount.reduce(
@@ -147,7 +177,7 @@ const requestMinting = catchAsync(async (req, res) => {
                                     bountyTypeWisePassAndFailCount,
                                     mintingDateString,
                                     mintBlockchainDetails,
-                                    totalSupply,
+                                    tokenId,
                                     imageFileLocation
                                 );
     const offChainMetadata = {
@@ -166,7 +196,7 @@ const requestMinting = catchAsync(async (req, res) => {
             { trait_type: 'total_impact_points_rewarded', value: totalImpactPointsAllocated },
             { trait_type: 'impact_brief', value: projectDescription },
             { trait_type: 'submission_distribution', value: bountyTypeWisePassAndFailCount },
-            { trait_type: 'token_id', value: totalSupply } 
+            { trait_type: 'token_id', value: tokenId } 
         ]
     };
     const imageLink = await uploadFileToArweave(imageFileLocation);
@@ -178,7 +208,7 @@ const requestMinting = catchAsync(async (req, res) => {
     const wallet = new ethers.Wallet(process.env.PROJECT_IMPACT_CERTIFICATE_ISSUER);
     const signature = await wallet.signMessage(mintToken);
     const requestId = await createMintRequest(mintToken, signature, paymentTransactionBlockchain, paymentTransactionHash, paymentTokenAddress, metadataLink, receiverAddress);
-    return res.json({ requestId });
+    return res.json({ requestId, tokenId, imageUri: imageLink, metadataUri: metadataLink });
 });
 
 const fetchMintStatus = catchAsync(async (req, res) => {
