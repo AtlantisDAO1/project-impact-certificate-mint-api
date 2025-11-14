@@ -3,11 +3,14 @@ const { mkdirSync, existsSync, readdirSync, statSync, unlinkSync, rmdirSync } = 
 const fs = require('fs');
 const path = require('path')
 const { ethers } = require('ethers');
-const generateProjectCertificateImage = require('./utils/imageGenerator');
-const { validImpactCores, validSdgs, blockchainDetails } = require('./validation');
+const httpStatus = require('http-status');
+const generateProjectCertificateImage = require('./utils/imageGeneration/imageGeneratorV1');
+const generateProjectCertificateImageV2 = require('./utils/imageGeneration/imageGeneratorV2');
+const { validImpactCores, validSdgs, sdgToSubTargets, blockchainDetails } = require('./validation');
 const { uploadFileToArweave, uploadJsonToArweave } = require('./utils/arweaveUploader');
-const { fetchMintToken, createMintRequest, fetchRequestStatus, fetchOutstandingRequestCount } = require('./utils/nftMintingAPIs');
+const { fetchMintToken, validateTransaction, createMintRequest, fetchRequestStatus, fetchOutstandingRequestCount } = require('./utils/nftMintingAPIs');
 const ApiError = require('./utils/ApiError');
+
 
 const catchAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch((err) => {
@@ -111,6 +114,13 @@ const requestMinting = catchAsync(async (req, res) => {
     fileLocation,
     preview = false
 */
+
+    // verify payment details
+    const result = await validateTransaction(paymentTransactionBlockchain, paymentTransactionHash, paymentTokenAddress)
+    if (!result.valid) {
+        throw new ApiError(httpStatus.BAD_REQUEST, `Invalid payment details: ${result.message}`);
+    }
+
     // prepare data to be sent to image generator function
     const tempFolderPath = `temporary/${new Date().getTime()}`;
     mkdirSync(tempFolderPath, { recursive: true });
@@ -138,7 +148,7 @@ const requestMinting = catchAsync(async (req, res) => {
 
     const tokenId = await fetchNextTokenId(mintBlockchain);
     if (tokenId === null) {
-        throw new ApiError(500, 'Could not calculate the token ID to be allocated to impact certificate')
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Could not calculate the token ID to be allocated to impact certificate')
     }
 
     const imageFileLocation = tempFolderPath + '/certificateImage.png';
@@ -211,6 +221,140 @@ const requestMinting = catchAsync(async (req, res) => {
     return res.json({ requestId, tokenId, imageUri: imageLink, metadataUri: metadataLink });
 });
 
+const requestMintingV2 = catchAsync(async (req, res) => {
+    /*
+    // prepare data to be sent to image generator function
+    const tempFolderPath = `temporary/${new Date().getTime()}`;
+    mkdirSync(tempFolderPath, { recursive: true });
+
+    const imageFileLocation = tempFolderPath + '/certificateImage.png';
+    await generateProjectCertificateImageV2(
+                                    'Resilient Water Network',
+                                    '22 Dec, 2023',
+                                    '22 Dec, 2024',
+                                    {
+                                        name: 'Lorem ipsum dolor sit amet consectetur. Senectus id venenatis ultricies ut maecenas sagittis euismod.',
+                                        image: 'assets/arbitrum.png'
+                                    },
+                                    500000000,
+                                    'Lorem ipsum dolor sit amet consectetur. Ipsum aliquam fusce nisl tempor turpis gravida consequat eget in. Cursus ut odio vulputate dictumst nullam turpis auctor sit turpis ut diam condimentum maecenas. Cursus ut odio vulputate dictumst nullam turpis auctor sit turpis ut diam condimentum maecenas. vulputate dictumst nullam turpis auctor sit turpis ut diam condimentum maecenas.',
+                                    [false,false,true,true],
+                                    6,
+                                    'Lorem ipsum dolor sit amet consectetur. Consequat egestas nec et ac sapien laoreet maecenas faucibus.',
+                                    'Lorem ipsum dolor sit amet consectetur. Consequat egestas nec et ac sapien laoreet maecenas faucibus.',
+                                    '22 Dec, 2024',
+                                    { name: 'celo', image: 'assets/celo.png'},
+                                    15,
+                                    imageFileLocation
+                                );
+    return res.json({ imageFileLocation }); */
+
+    const {
+        projectName, 
+        projectStartDate, 
+        projectEndDate, 
+        backerName, 
+        backerLogo, 
+        projectDescription, 
+        totalFundsDeployedUSD, 
+        impactCoresAffected, 
+        impactBrief,
+        paymentTransactionBlockchain, 
+        paymentTransactionHash, 
+        paymentTokenAddress,
+        mintBlockchain,
+        receiverAddress
+    } = req.body;
+
+
+    // verify payment details
+    const result = await validateTransaction(paymentTransactionBlockchain, paymentTransactionHash, paymentTokenAddress)
+    if (!result.valid) {
+        throw new ApiError(httpStatus.BAD_REQUEST, `Invalid payment details: ${result.message}`);
+    }
+
+    if (!sdgToSubTargets[impactBrief.SDG].includes(impactBrief.subTarget)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Specified sub-target does not match with the specified SDG');
+    }
+
+    // prepare data to be sent to image generator function
+    const tempFolderPath = `temporary/${new Date().getTime()}`;
+    mkdirSync(tempFolderPath, { recursive: true });
+    const getFormattedDate = date => date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    const projectStartDateString = getFormattedDate(new Date(projectStartDate));
+    const projectEndDateString = getFormattedDate(new Date(projectEndDate));
+    const organisationLogo = path.join(tempFolderPath, 'organisationLogo.png');
+    let response = await axios({
+        url: backerLogo,
+        method: 'GET',
+        responseType: 'arraybuffer',
+    });
+    await fs.promises.writeFile(organisationLogo, response.data);
+    const backer = {
+        name: backerName,
+        image: organisationLogo
+    };
+    const coreStatuses = validImpactCores.map(core => impactCoresAffected.includes(core));
+    const sdgIndex = validSdgs.indexOf(impactBrief.SDG)
+    const mintingDateString = getFormattedDate(new Date());
+    const mintBlockchainDetails = {
+        name: mintBlockchain,
+        image: blockchainDetails[mintBlockchain].image
+    };
+
+    const tokenId = await fetchNextTokenId(mintBlockchain);
+    if (tokenId === null) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Could not calculate the token ID to be allocated to impact certificate')
+    }
+
+    const imageFileLocation = tempFolderPath + '/certificateImage.png';
+    await generateProjectCertificateImageV2(
+                                    projectName,
+                                    projectStartDateString,
+                                    projectEndDateString,
+                                    backer,
+                                    totalFundsDeployedUSD,
+                                    projectDescription,
+                                    coreStatuses,
+                                    sdgIndex,
+                                    impactBrief.subTarget,
+                                    impactBrief.impactIndicator,
+                                    mintingDateString,
+                                    mintBlockchainDetails,
+                                    tokenId,
+                                    imageFileLocation
+                                );
+    const offChainMetadata = {
+        name: "Impact Certificate",
+        description: "Certificate awarded for creating impact by carrying out a project",
+        image: "", // image will be uploaded first to obtain the URI
+        external_url: process.env.ATLANTIS_WEBSITE_URL,
+        attributes: [
+            { trait_type: 'project_title', value: projectName },
+            { trait_type: 'project_start_date', value: projectStartDateString },
+            { trait_type: 'estimated_project_end_date', value: projectEndDateString },
+            { trait_type: 'cores', value: impactCoresAffected },
+            { trait_type: 'sdg', value: impactBrief.SDG },
+            { trait_type: 'sdgs_sub_target', value: impactBrief.subTarget },
+            { trait_type: 'impact_metric', value: impactBrief.impactIndicator },
+            { trait_type: 'project_backer', value: backerName },
+            { trait_type: 'total_funds_deployed_USD', value: totalFundsDeployedUSD },
+            { trait_type: 'impact_brief', value: projectDescription },
+            { trait_type: 'token_id', value: tokenId } 
+        ]
+    };
+    const imageLink = await uploadFileToArweave(imageFileLocation);
+    offChainMetadata.image = imageLink;
+    const metadataLink = await uploadJsonToArweave(offChainMetadata);
+    deleteDirectoryRecursive(tempFolderPath);
+
+    const mintToken = await fetchMintToken(mintBlockchain, process.env.PROJECT_IMPACT_CERTIFICATE_CONTRACT_ADDRESS, process.env.PROJECT_IMPACT_CERTIFICATE_ISSUER_ADDRESS);
+    const wallet = new ethers.Wallet(process.env.PROJECT_IMPACT_CERTIFICATE_ISSUER);
+    const signature = await wallet.signMessage(mintToken);
+    const requestId = await createMintRequest(mintToken, signature, paymentTransactionBlockchain, paymentTransactionHash, paymentTokenAddress, metadataLink, receiverAddress);
+    return res.json({ requestId, tokenId, imageUri: imageLink, metadataUri: metadataLink });
+});
+
 const fetchMintStatus = catchAsync(async (req, res) => {
     const response = await fetchRequestStatus(req.query.requestId);
     return res.json(response);
@@ -218,5 +362,6 @@ const fetchMintStatus = catchAsync(async (req, res) => {
 
 module.exports = {
     requestMinting,
+    requestMintingV2,
     fetchMintStatus
 };

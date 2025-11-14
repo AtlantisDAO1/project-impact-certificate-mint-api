@@ -79,7 +79,7 @@ const checkTokenTransfer = async (chainName, txHash, tokenAddress, recipientAddr
       return
     }
   }
-  throw new Error("Transaction hash does not correspond to mint reqeuest fee payment")
+  throw new Error("Transaction hash does not correspond to mint request fee payment")
 };
 
 

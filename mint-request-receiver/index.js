@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-const { fetchBlockchains, generateMintToken, addMintRequest, fetchMintRequestStatus, fetchOutstandingRequestCount } = require("./controllers");
+const { fetchBlockchains, generateMintToken, validateTransaction, addMintRequest, fetchMintRequestStatus, fetchOutstandingRequestCount } = require("./controllers");
 const createResponse = require("./utils/createResponse");
 
 const cachedClient = new MongoClient(process.env.MONGODB_URI);
@@ -12,6 +12,8 @@ exports.handler = async (event) => {
             response = await fetchBlockchains(cachedClient);
         } else if (path === "/v1/minttokenrequest") {
             response = await generateMintToken(cachedClient, event);
+        } else if (path === "/v1/validatetransaction") {
+            response = await validateTransaction(cachedClient, event);
         } else if (path === "/v1/mintrequest") {
             response = await addMintRequest(cachedClient, event);
         } else if (path === "/v1/mintstatus") {
