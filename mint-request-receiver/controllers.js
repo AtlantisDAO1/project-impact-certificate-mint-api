@@ -39,6 +39,38 @@ const generateMintToken = async (client, event) => {
                             });
 };
 
+const validateTransaction = async (client, event) => {
+    const {
+        paymentTransactionBlockchain,
+        paymentTransactionHash,
+        paymentTokenAddress
+    } = JSON.parse(event.body);
+
+    const blockchains = await DB.fetchBlockchains(client);
+    const blockchain = blockchains.find(ele => ele.chainName===paymentTransactionBlockchain);
+    if (!blockchain) {
+        return createResponse(400, { valid: false, message: "Blockchain not supported" });
+    }
+    const mintRequest = await DB.fetchMintRequest(client, { paymentTransactionBlockchain, paymentTransactionHash });
+    if (mintRequest) {
+        return createResponse(400, { valid: false, message: "Payment transaction is already used for minting" });
+    }
+    const paymentToken = blockchain.paymentTokens.find(token => token.tokenAddress.toLowerCase()===paymentTokenAddress.toLowerCase());
+    if (!paymentToken) {
+        return createResponse(400, { valid: false, message: "Invalid token specified for payment" });
+    }
+    const transactionHashRegex = /^0x[a-fA-F0-9]{64}$/;
+    if (!transactionHashRegex.test(paymentTransactionHash)) {
+        return createResponse(400, { valid: false, message: "Invalid transaction hash specified" })
+    }
+    try {
+        await checkTokenTransfer(blockchain.chainName, paymentTransactionHash, paymentToken.tokenAddress, blockchain.mintFeeReceiverAddress, paymentToken.mintFee, paymentToken.decimals);
+    } catch (error) {
+        return createResponse(400, { valid: false, message: `Error while parsing the payment transaction hash: ${error.message}` });
+    }
+    return createResponse(200, { valid: true });
+};
+
 const addMintRequest = async (client, event) => {
     const {
         mintToken,
@@ -112,9 +144,11 @@ const fetchOutstandingRequestCount = async (client, event) => {
     return createResponse(200, response);
 };
 
+
 module.exports = {
     fetchBlockchains,
     generateMintToken,
+    validateTransaction,
     addMintRequest,
     fetchMintRequestStatus,
     fetchOutstandingRequestCount
