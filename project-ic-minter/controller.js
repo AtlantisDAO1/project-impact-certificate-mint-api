@@ -248,24 +248,26 @@ const requestMintingV2 = catchAsync(async (req, res) => {
                                     imageFileLocation
                                 );
     return res.json({ imageFileLocation }); */
-
     const {
         projectName, 
         projectStartDate, 
         projectEndDate, 
         backerName, 
-        backerLogo, 
         projectDescription, 
         totalFundsDeployedUSD, 
         impactCoresAffected, 
         impactBrief,
+        mediaLinks,
         paymentTransactionBlockchain, 
         paymentTransactionHash, 
         paymentTokenAddress,
         mintBlockchain,
         receiverAddress
     } = req.body;
-
+    const backerLogo = req?.file?.location;
+    if (!backerLogo) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Backer logo not specified');
+    }
 
     // verify payment details
     const result = await validateTransaction(paymentTransactionBlockchain, paymentTransactionHash, paymentTokenAddress)
@@ -273,9 +275,11 @@ const requestMintingV2 = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.BAD_REQUEST, `Invalid payment details: ${result.message}`);
     }
 
-    if (!sdgToSubTargets[impactBrief.SDG].includes(impactBrief.subTarget)) {
+    const subTarget = sdgToSubTargets[impactBrief.SDG].subTargets.find(ele => ele.shortName === impactBrief.subTarget);
+    if (!subTarget) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Specified sub-target does not match with the specified SDG');
     }
+    const sdgNumber = sdgToSubTargets[impactBrief.SDG].sdgNumber;
 
     // prepare data to be sent to image generator function
     const tempFolderPath = `temporary/${new Date().getTime()}`;
@@ -317,7 +321,7 @@ const requestMintingV2 = catchAsync(async (req, res) => {
                                     projectDescription,
                                     coreStatuses,
                                     sdgIndex,
-                                    impactBrief.subTarget,
+                                    `${subTarget.subTargetNumber} ${subTarget.shortName}`,
                                     impactBrief.impactIndicator,
                                     mintingDateString,
                                     mintBlockchainDetails,
@@ -335,11 +339,14 @@ const requestMintingV2 = catchAsync(async (req, res) => {
             { trait_type: 'estimated_project_end_date', value: projectEndDateString },
             { trait_type: 'cores', value: impactCoresAffected },
             { trait_type: 'sdg', value: impactBrief.SDG },
-            { trait_type: 'sdgs_sub_target', value: impactBrief.subTarget },
+            { trait_type: 'sdg_number', value: sdgNumber },
+            { trait_type: 'sdg_sub_target', value: subTarget.description },
+            { trait_type: 'sdg_sub_target_number', value: subTarget.subTargetNumber },
             { trait_type: 'impact_metric', value: impactBrief.impactIndicator },
             { trait_type: 'project_backer', value: backerName },
             { trait_type: 'total_funds_deployed_USD', value: totalFundsDeployedUSD },
             { trait_type: 'impact_brief', value: projectDescription },
+            { trait_type: 'media_links', value: mediaLinks },
             { trait_type: 'token_id', value: tokenId } 
         ]
     };

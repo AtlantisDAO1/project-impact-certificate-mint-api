@@ -322,29 +322,25 @@ This API endpoint is used for sending request to mint an **Impact Certificate (I
 
 
 #### Request Body
+(multipart/form-data)
 
-```json
-{
-  "projectName": "Sample Project",
-  "projectStartDate": "2025-09-18T13:40:40",
-  "projectEndDate": "2025-09-25T13:40:40",
-  "backerName": "Sample Organisation",
-  "backerLogo": "https://orgwebsite.org/sample_image.png",
-  "projectDescription": "This project was carried out in Bengaluru to promote rainwater harvesting. Over 20000 households setup rainwater harvesting which can    potentially lead to 4000000 litres of water being harvested",
-  "totalFundsDeployedUSD": 50000,
-  "impactCoresAffected": ["Water", "Earth", "Energy", "Social"],
-  "impactBrief": {
-        "SDG": "Zero hunger",
-        "subTarget": "Sustainable food production",
-        "impactIndicator": "Number of small-scale farmers with productivity increase: 5"
-    },
-  "paymentTransactionBlockchain": "arbitrum",
-  "paymentTransactionHash": "0x9f3a1c7b4e2d90f5b8c3a6e12d7f4b0c5a9e8f1d2c3b4a5e6f7091a2b3c4d5e",
-  "paymentTokenAddress": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-  "mintBlockchain": "arbitrum",
-  "receiverAddress": "0x7c4e9a3f82b5d1a6c2f08b34e9d7ab1938f5e247"
-}
-```
+| Field                            | Type          | Description                                                               |
+| -------------------------------- | ------------- | ------------------------------------------------------------------------- |
+| `projectName`                    | text        | Sample Project                                       |
+| `projectStartDate`               | text       | 2025-09-18T13:40:40                           |
+| `projectEndDate`                 | text       | 2025-09-25T13:40:40                                   |
+| `backerName`                     | text         | Sample Organisation                     |
+| `backerLogo`                     | file        | `image file for backer logo` |
+| `projectDescription`             | text         | This project was carried out in Bengaluru to promote rainwater harvesting. Over 20000 households setup rainwater harvesting which can potentially lead to 4000000 litres of water being harvested.                               |
+| `totalFundsDeployedUSD`          | text        | 50000                            |
+| `impactCoresAffected[0]`            | text  | Water |
+| `impactCoresAffected[1]`            | text  | Earth |
+| `impactBrief`                    | text         | { "SDG": "Zero hunger", "subTarget": "Sustainable food production", "impactIndicator": "Number of small-scale farmers with productivity increase: 5" }                       |
+| `paymentTransactionBlockchain`   | text         | arbitrum                                           |
+| `paymentTransactionHash`         | text         | 0x9f3a1c7b4e2d90f5b8c3a6e12d7f4b0c5a9e8f1d2c3b4a5e6f7091a2b3c4d5e                                           |
+| `paymentTokenAddress`            | text         | 0xaf88d065e77c8cC2239327C5EDb3A432268e5831                                        |
+| `mintBlockchain`                 | text        | arbitrum                 |
+| `receiverAddress`                | text        | 0x7c4e9a3f82b5d1a6c2f08b34e9d7ab1938f5e247     |
 
 #### Field Descriptions
 
