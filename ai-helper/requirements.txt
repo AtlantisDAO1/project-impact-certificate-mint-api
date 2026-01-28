@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+langchain-google-genai
+langchain-core
+python-dotenv
+pandas
+requests
+openpyxl
+pillow
+google-generativeai
